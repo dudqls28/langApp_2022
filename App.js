@@ -42,6 +42,7 @@ export default function App() {
     inputRange: [-300,300],
     outputRange : [100,0],
   });
+  //test
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
