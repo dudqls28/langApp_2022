@@ -52,6 +52,16 @@ export default function App() {
           x: dx,
           y: dy,
         });
+      },
+      onPanResponderRelease: () =>{
+        Animated.spring(POSITION,{
+          toValue: {
+            x:0,
+            y:0,
+          },
+          bounciness : 20,
+          useNativeDriver: false,
+        }).start();
       }
     })
   ).current;
@@ -62,7 +72,7 @@ export default function App() {
           style={{
             borderRadius,
             backgroundColor: bgColor,
-            transform: [...POSITION.getTranslateTransform()],
+            transform: POSITION.getTranslateTransform(),
           }}
         />
     </Container>
