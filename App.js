@@ -5,52 +5,53 @@ import { Ionicons } from "@expo/vector-icons";
 import { PushNotificationIOS } from 'react-native';
 import icons from "./icons";
 
+const BLACK_COLOR = "#1e272e";
+const GREY = "#485460";
+const GREEN = "#2ecc71";
+const RED = "#e74c3c";
+
 const Container = styled.View`
   flex:1;
+  background-color:${BLACK_COLOR};
+`;
+const Edge = styled.View`
+  flex:1
   justify-content : center;
   align-items: center;
-  background-color: #00a8ff;
 `;
 
-const Card = styled(Animated.createAnimatedComponent(View))`
-  background-color:white;
-  width:300px;
-  height:300px;
+const WordContainer = styled(Animated.createAnimatedComponent(View))`
+  background-color:${GREY};
+  width:100px;
+  height:100px;
   justify-content : center;
   align-items: center;
-  border-radius: 12px;
-  box-shadow: 1px 1px 5px rgba(0,0,0,0.2);
-  position:absolute;
+  border-radius: 50px;
 `;
 
-const Btn = styled.TouchableOpacity`
-  margin : 0px 10px;
+const Word = styled.Text`
+  font-size: 20px;
+  font-weight: 500;
+  color: ${(props) => props.color};
 `;
 
-const BtnContainer = styled.View`
-  flex-direction: row;
-  flex: 1;
-`;
-
-const CardContainer = styled.View`
+const Center = styled.View`
   flex:3;
-  justify-content: center;
+  justify-content : center;
   align-items: center;
-`
+`;
+
+const IconCard = styled(Animated.createAnimatedComponent(View))`
+  background-color:white;
+  padding: 10px 20px;
+  border-radius: 10px;
+`;
 
 export default function App() {
   //values
   const scale = useRef(new Animated.Value(1)).current;
-  const position = useRef(new Animated.Value(0)).current;
-  const rotation = position.interpolate({
-    inputRange : [ -250, 250],
-    outputRange : ["-15deg", "15deg"],
-  })
-  const secondScale = position.interpolate({
-    inputRange : [ -300,0, 300],
-    outputRange : [1,0.7,1],
-    extrapolate: "clamp",
-  })
+  const position = useRef(new Animated.ValueXY({x:0,y:0})).current;
+  
   const onPressIn = 
     Animated.spring(scale,{ toValue:0.95, useNativeDriver:true});
   
@@ -73,55 +74,37 @@ export default function App() {
       onPanResponderGrant: () => {
         onPressIn.start();
       },
-      onPanResponderMove : (_,{dx}) => {
-        position.setValue(dx);
+      onPanResponderMove : (_,{dx,dy}) => {
+        position.setValue({x:dx,y:dy});
       },
       onPanResponderRelease: (_,{dx}) =>{
-        if (dx < -250){
-          goLeft.start(onDismiss);
-        } else if (dx >250){
-          goRight.start(onDismiss);
-        } else {
           Animated.parallel([onPressOut,goCenter]).start();
-        }
+        
       }
     })
   ).current;
-  const [index,setIndex] = useState(0);
-  const onDismiss = () =>{
-    scale.setValue(1);
-    position.setValue(0);
-    setIndex((prev) => prev +1);
-  }
-  const closePress = () => {
-    goLeft.start(onDismiss);
-  }
-  const checkPress = () => {
-    goRight.start(onDismiss);
-  }
   return (
     <Container>
-      <CardContainer>
-        <Card style={{transform: [{scale:secondScale}]}}>
-          <Ionicons name={icons[index+1]} color="#192a56" size={98} />
-        </Card> 
-        <Card 
+      <Edge>
+        <WordContainer>
+          <Word color={GREEN}>I Know</Word>
+        </WordContainer>
+      </Edge>
+      <Center>
+        <IconCard
           {...panResponder.panHandlers}
           style={{
-            transform: [{ scale} , { translateX : position},{rotateZ: rotation}],
+            transform: [...position.getTranslateTransform(),{ scale }],
           }}
         >
-          <Ionicons name={icons[index]} color="#192a56" size={98} />
-        </Card>
-      </CardContainer>
-      <BtnContainer>
-        <Btn onPress={closePress}>
-          <Ionicons name="close-circle" color="white" size={58} />
-        </Btn>
-        <Btn onPress={checkPress}>
-          <Ionicons name="checkmark-circle" color="white" size={58} />
-        </Btn>
-      </BtnContainer>
+          <Ionicons name="beer" color={GREY} size={76} />
+        </IconCard>
+      </Center>
+      <Edge>
+        <WordContainer>
+          <Word color={RED} >I Don't Know</Word>
+        </WordContainer>
+      </Edge>
     </Container>
   )
 }
